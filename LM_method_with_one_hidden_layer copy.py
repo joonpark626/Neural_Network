@@ -26,50 +26,6 @@ def feedforward_comp(W_HL1_new, B_HL1_new, W_out_new, B_out_new, data_inputs):
     
     # Computation of hidden layer 1 neurons with weights and inputs
     HL1_comp = np.dot(data_inputs, W_HL1_new.T)
-    print("feedforward_comp: HL1_comp = ", HL1_comp)
-    print("\n")
-    
-    # Addition with the bias of hidden neurons
-    SUM_HL1_comp = []
-    for i in range(len(HL1_comp)):
-        SUM_HL1_comp.append(np.array(HL1_comp[i]) + np.array(B_HL1_new))
-    print("feedforward_comp: SUM_HL1_comp = ", np.array(SUM_HL1_comp))
-    print("\n")
-    
-    # Applying the sigmoid activation function to activate all the elements (neuron outputs) for the data set
-    Activated_SUM_HL1_comp = np.array([[transfer_sigmoid(x) for x in sample] for sample in deepcopy(SUM_HL1_comp)])
-    print("feedforward_comp: Activated_SUM_HL1_comp = ", Activated_SUM_HL1_comp)
-    print("\n")
-    
-    print("feedforward_comp: W_out_new = ", W_out_new)
-    print("feedforward_comp: B_out_new = ", B_out_new)
-    print("\n")
-           
-    prev_calculated_outputs = np.dot(W_out_new, Activated_SUM_HL1_comp.T)
-    print("feedforward_comp: prev_calculated_outputs = ", prev_calculated_outputs)
-    #print("feedforward_comp: prev_calculated_outputs.T TESTEST = ", prev_calculated_outputs.T)
-    print("\n")
-    
-    Transp_prev_calculated_outputs = np.transpose(prev_calculated_outputs)
-    print("feedforward_comp: Transp_prev_calculated_outputs TESTEST = ", Transp_prev_calculated_outputs)
-    print("\n")
-    
-    # Adding the list ("B_out_new") to each array element of "Transp_prev_calculated_outputs"
-    # Element = one data sample
-    final_calculated_outputs = np.add(Transp_prev_calculated_outputs, B_out_new)
-    
-    print("feedforward_comp: final_calculated_outputs = ", final_calculated_outputs)
-    print("\n")
-    
-    return final_calculated_outputs
-
-
-def activated_neuron_function(W_HL1_new, B_HL1_new, W_out_new, B_out_new, data_inputs):
-    
-    # About: Code segment from feedforward_comp will be reused for obtaining the hidden neurons' activated outputs
-    
-    # Computation of hidden layer 1 neurons with weights and inputs
-    HL1_comp = np.dot(data_inputs, W_HL1_new.T)
     #print("feedforward_comp: HL1_comp = ", HL1_comp)
     #print("\n")
     
@@ -81,9 +37,32 @@ def activated_neuron_function(W_HL1_new, B_HL1_new, W_out_new, B_out_new, data_i
     #print("\n")
     
     # Applying the sigmoid activation function to activate all the elements (neuron outputs) for the data set
-    activated_hidden_outputs = np.array([[transfer_sigmoid(x) for x in sample] for sample in deepcopy(SUM_HL1_comp)])
+    Activated_SUM_HL1_comp = np.array([[transfer_sigmoid(x) for x in sample] for sample in deepcopy(SUM_HL1_comp)])
+    print("feedforward_comp: Activated_SUM_HL1_comp = ", Activated_SUM_HL1_comp)
+    print("\n")
     
-    return activated_hidden_outputs
+    #print("feedforward_comp: W_out_new = ", W_out_new)
+    #print("feedforward_comp: B_out_new = ", B_out_new)
+    #print("\n")
+           
+    prev_calculated_outputs = np.dot(W_out_new, Activated_SUM_HL1_comp.T)
+    #print("feedforward_comp: prev_calculated_outputs = ", prev_calculated_outputs)
+    #print("feedforward_comp: prev_calculated_outputs.T TESTEST = ", prev_calculated_outputs.T)
+    #print("\n")
+    
+    Transp_prev_calculated_outputs = np.transpose(prev_calculated_outputs)
+    #print("feedforward_comp: Transp_prev_calculated_outputs TESTEST = ", Transp_prev_calculated_outputs)
+    #print("\n")
+    
+    # Adding the list ("B_out_new") to each array element of "Transp_prev_calculated_outputs"
+    # Element = one data sample
+    final_calculated_outputs = np.add(Transp_prev_calculated_outputs, B_out_new)
+    
+    #print("feedforward_comp: final_calculated_outputs = ", final_calculated_outputs)
+    #print("\n")
+    
+    return final_calculated_outputs, Activated_SUM_HL1_comp
+
 
 # Comparing the calculated and measured outputs for conjugate gradient iteration
 def error_checking(calculated_outputs, data_outputs):
@@ -93,22 +72,58 @@ def error_checking(calculated_outputs, data_outputs):
     # print("error_checking: data_outputs = ", data_outputs)
     # print("\n")
     
-    
-    for i in range(len(calculated_outputs)):
-        error_samples = (calculated_outputs[i] - data_outputs[i])/(np.max(calculated_outputs) - np.min(calculated_outputs))
-    #print("error_checking: error_samples = ", error_samples)
-    #print("\n")
-    
-    sum_error = sum(error_samples)
-    avg_error = sum_error/len(calculated_outputs[0])
-    # print("error_checking: sum_error = ", sum_error)
-    # print("error_checking: avg_error = ", avg_error)
+    Y_max_min = max(calculated_outputs) - min(calculated_outputs)
+    error_samples =  np.divide(np.subtract(calculated_outputs, data_outputs), Y_max_min)
+    # print("error_checking: Y_max_min = ", Y_max_min)
+    # print("error_checking: error_samples = ", error_samples)
     # print("\n")
+
+    avg_error = np.sum(error_samples)/np.size(calculated_outputs)
+    #print("error_checking: avg_error = ", avg_error)
+    #print("\n")
     
     return error_samples, avg_error
 
+
+def delta_W_HL1_computation(activated_hidden1_outputs, data_inputs, W_HL1_size):
+    
+    # About: To find the delta E of Weights in the hidden 1 layer. Since there are 12 samples to hanle
+    #        array/matrix will be computed for one sample each for simplicity
+    
+    print("-----------------------------------------------------------------")
+    print("delta_W_HL1_computation: activated_hidden1_outputs = ", activated_hidden1_outputs)
+    print("delta_W_HL1_computation: data_inputs = ", data_inputs)
+    print("delta_W_HL1_computation: W_HL1_size = ", W_HL1_size)
+    print("\n")
+    
+    # need to make a matrix that is the same size matrix as W_HL1 and the matrix is the delta E function for each sample
+    delta_w_HL1 = np.array([[pow(activated_hidden1_outputs[row], 2)*(1 - activated_hidden1_outputs[row])*data_inputs[col] for col in range(W_HL1_size[1])] for row in range(W_HL1_size[0])])
+    print("delta_W_HL1_computation: delta_w_HL1 = ", delta_w_HL1)
+    print("\n")
+    
+    return delta_w_HL1
+
+
+def delta_W_function(SUM_de_w_out, SUM_de_B_out, SUM_de_w_HL1, SUM_de_B_HL1, Tr_errors):
+    
+    # About: Obtaining the derivative of the hidden layer 1 weights for each sample data
+    # All the vectors, except the Tr_errors, are the Jacobian matrices
+    print("-----------------------------------------------------------------")
+    print("delta_W_function: SUM_de_w_out = ", SUM_de_w_out)
+    print("delta_W_function: SUM_de_B_out = ", SUM_de_B_out)
+    print("\n") 
+    print("delta_W_function: SUM_de_w_HL1 = ", SUM_de_w_HL1)
+    print("delta_W_function: SUM_de_B_HL1 = ", SUM_de_B_HL1)
+    print("\n") 
+    print("delta_W_function: Tr_errors = ", Tr_errors)
+    print("\n")
+    
+    
+    return delta_w_out, delta_B_out, delta_w_HL1, delta_B_HL1
+
 def Jacobian_vector_for_HL1(W_HL1_new, B_HL1_new, W_out_new, B_out_new, activated_hidden1_outputs, data_inputs, calculated_outputs, data_outputs):
     
+    # About: Obtaining the derivative of the hidden layer 1 weights for each sample data
     # print("-----------------------------------------------------------------")
     # print("Jacobian_vector_for_hidden1: W_HL1_new = ", W_HL1_new)
     # print("Jacobian_vector_for_hidden1: B_HL1_new = ", B_HL1_new)
@@ -116,7 +131,10 @@ def Jacobian_vector_for_HL1(W_HL1_new, B_HL1_new, W_out_new, B_out_new, activate
     # print("Jacobian_vector_for_hidden1: W_out_new = ", W_out_new)
     # print("Jacobian_vector_for_hidden1: B_out_new = ", B_out_new)
     # print("\n")
+    
+    # print("Jacobian_vector_for_hidden1: data_inputs = ", data_inputs)
     # print("Jacobian_vector_for_hidden1: activated_hidden1_outputs = ", activated_hidden1_outputs)
+    # print("\n")
     # print("Jacobian_vector_for_hidden1: calculated_outputs = ", calculated_outputs)
     # print("Jacobian_vector_for_hidden1: data_outputs = ", data_outputs)
     # print("\n")
@@ -126,26 +144,49 @@ def Jacobian_vector_for_HL1(W_HL1_new, B_HL1_new, W_out_new, B_out_new, activate
     #print("Jacobian_vector_for_hidden1: diff_calc_meas = ", diff_calc_meas)
     #print("\n")
     
+    # ----------------------------------------------------------------------
     # Require to find the derivative of weights for all 12 samples
-    delta_B_out = np.ones((len(activated_hidden1_outputs), len(B_out_new)))
-    delta_w_out = np.array(deepcopy(activated_hidden1_outputs))
-    #print("Jacobian_vector_for_hidden1: delta_B_out = ", delta_B_out)
-    #print("Jacobian_vector_for_hidden1: delta_w_out = ", delta_w_out)
-    #print("\n")
+    de_B_out = np.ones((len(activated_hidden1_outputs), len(B_out_new)))
+    de_w_out = np.array(deepcopy(activated_hidden1_outputs))
     
     # Determine the delta vector of hidden neuron biases
-    delta_B_HL1 = np.array([[(1-x)*pow(x,2) for x in sample] for sample in deepcopy(delta_w_out)])
-    #print("Jacobian_vector_for_hidden1: delta_B_HL1 = ", delta_B_HL1)
-    #print("\n")
+    de_B_HL1 = np.array([[(1-x)*pow(x,2) for x in sample] for sample in deepcopy(de_w_out)])
     
-    delta_w_HL1 = np.array([None for i in range(len(activated_hidden1_outputs))])
+    # Find the matrix size of the hidden layer 1 weights
+    W_HL1_size = np.shape(W_HL1_new)
+    
+    # Since a huge collection of arrays will be generated, for simplicity, created a function to allocate each data sample for finding delta dE/dw
+    de_w_HL1 = np.array([None for i in range(len(activated_hidden1_outputs))])
     for i in range(len(activated_hidden1_outputs)):
-        delta_w_HL1[i] = delta_W_HL1_computation(activated_hidden1_outputs[i], )
-    
-    #delta_w_HL1 = 
+        de_w_HL1[i] = delta_W_HL1_computation(activated_hidden1_outputs[i], data_inputs[i], W_HL1_size)
         
+        
+    # print("Jacobian_vector_for_hidden1: de_w_out = ", de_w_out)    
+    # print("Jacobian_vector_for_hidden1: de_B_out = ", de_B_out)
+    # print("\n")
+    # print("Jacobian_vector_for_hidden1: de_B_HL1 = ", de_B_HL1)
+    # print("\n")
+    # print("Jacobian_vector_for_hidden1: de_w_HL1 = ", de_w_HL1)
+    # print("\n")
     
-    return Jacob_W_HL1_new
+    # ----------------------------------------------------------------------
+    # ----------------------------------------------------------------------
+    SUM_de_w_out = de_w_out.sum(axis=0)
+    SUM_de_B_out = np.array(np.sum(de_B_out))
+    
+    SUM_de_w_HL1 = de_w_HL1.sum(axis=0)
+    SUM_de_B_HL1 = de_B_HL1.sum(axis=0)
+    
+    
+    # print("Jacobian_vector_for_hidden1: SUM_de_w_out = ", SUM_de_w_out)
+    # print("Jacobian_vector_for_hidden1: SUM_de_B_out = ", SUM_de_B_out)
+    # print("\n") 
+    # print("Jacobian_vector_for_hidden1: SUM_de_w_HL1 = ", SUM_de_w_HL1)
+    # print("Jacobian_vector_for_hidden1: SUM_de_B_HL1 = ", SUM_de_B_HL1)
+    # print("\n") 
+        
+    return SUM_de_w_out, SUM_de_B_out, SUM_de_w_HL1, SUM_de_B_HL1
+
 
 def Levenberg_Marquardt_HL1(user_Validation_error, W_HL1, B_HL1, W_out, B_out, Tr_data_inputs, Tr_data_outputs, V_data_inputs, V_data_outputs, Te_data_inputs, Te_data_outputs, mui, max_epoch):
     
@@ -176,17 +217,30 @@ def Levenberg_Marquardt_HL1(user_Validation_error, W_HL1, B_HL1, W_out, B_out, T
     
     for epoch in range(max_epoch):
         
-        Tr_calculated_outputs = feedforward_comp(W_HL1_new, B_HL1_new, W_out_new, B_out_new, Tr_data_inputs)
+        Tr_calculated_outputs, activated_hidden1_outputs = feedforward_comp(W_HL1_new, B_HL1_new, W_out_new, B_out_new, Tr_data_inputs)
         Tr_errors, Tr_avg_error = error_checking(Tr_calculated_outputs, Tr_data_outputs)
 
-        V_calculated_outputs = feedforward_comp(W_HL1_new, B_HL1_new, W_out_new, B_out_new, V_data_inputs)
+        # print("Levenberg_Marquardt : Tr_calculated_outputs = ", Tr_calculated_outputs)
+        # print("Levenberg_Marquardt : activated_hidden1_outputs = ", activated_hidden1_outputs)
+        # print("Levenberg_Marquardt : Tr_errors = ", Tr_errors)
+        # print("Levenberg_Marquardt : Tr_avg_error = ", Tr_avg_error)
+        # print("\n")
+        
+        V_calculated_outputs, dummy = feedforward_comp(W_HL1_new, B_HL1_new, W_out_new, B_out_new, V_data_inputs)
         V_errors, V_avg_error = error_checking(V_calculated_outputs, V_data_outputs)
+        
+        # print("Levenberg_Marquardt : V_calculated_outputs = ", V_calculated_outputs)
+        # print("Levenberg_Marquardt : V_errors = ", V_errors)
+        # print("Levenberg_Marquardt : V_avg_error = ", V_avg_error)
+        # print("\n")
         
         if(Tr_avg_error < user_Validation_error or V_avg_error == Tr_avg_error):
             break
         
-        activated_hidden1_outputs = activated_neuron_function(W_HL1_new, B_HL1_new, W_out_new, B_out_new, Tr_data_inputs)
-        Jacob_W_HL1_new = Jacobian_vector_for_HL1(W_HL1_new, B_HL1_new, W_out_new, B_out_new, activated_hidden1_outputs, Tr_data_inputs, Tr_calculated_outputs, Tr_data_outputs)
+        SUM_de_w_out, SUM_de_B_out, SUM_de_w_HL1, SUM_de_B_HL1 = Jacobian_vector_for_HL1(W_HL1_new, B_HL1_new, W_out_new, B_out_new, activated_hidden1_outputs, Tr_data_inputs, Tr_calculated_outputs, Tr_data_outputs)
+        
+        delta_w_out, delta_B_out, delta_w_HL1, delta_B_HL1 = delta_W_function(SUM_de_w_out, SUM_de_B_out, SUM_de_w_HL1, SUM_de_B_HL1, Tr_errors)
+
         
         num_epoch_iterated = num_epoch_iterated + 1
         #print("conjugate_gradient: num_epoch_iterated (epoch >= ",epoch,") = ", num_epoch_iterated)    
