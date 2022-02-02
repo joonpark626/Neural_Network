@@ -240,7 +240,7 @@ def Levenberg_Marquardt_HL1(user_Validation_error, W_HL1, B_HL1, W_out, B_out, T
         SUM_de_w_out, SUM_de_B_out, SUM_de_w_HL1, SUM_de_B_HL1 = Jacobian_vector_for_HL1(W_HL1_new, B_HL1_new, W_out_new, B_out_new, activated_hidden1_outputs, Tr_data_inputs, Tr_calculated_outputs, Tr_data_outputs)
         
         delta_w_out, delta_B_out, delta_w_HL1, delta_B_HL1 = delta_W_function(SUM_de_w_out, SUM_de_B_out, SUM_de_w_HL1, SUM_de_B_HL1, Tr_errors)
-
+        
         
         num_epoch_iterated = num_epoch_iterated + 1
         #print("conjugate_gradient: num_epoch_iterated (epoch >= ",epoch,") = ", num_epoch_iterated)    
