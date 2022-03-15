@@ -1,6 +1,7 @@
 from copy import deepcopy
 from operator import index
 from re import I
+from tkinter.filedialog import askopenfile
 from turtle import xcor
 import numpy as np
 from math import *
@@ -356,11 +357,8 @@ def line_search_function_h_hidden(W_out_new, W_HL1_new, B_out_new, B_HL1_new,
         count = count + 1
     
     #print("line_search_function_h_hidden : count = ", count)
-    # print("line_search_function_h_hidden : etah3 = ", etah1)
-    # print("line_search_function_h_hidden : etah3 = ", etah2)
-    # print("line_search_function_h_hidden : etah3 = ", etah3)
-    # print("line_search_function_h_hidden : etah3 = ", etah4)
-    # print("\n")
+    #print("line_search_function_h_hidden : etah3 = ", etah3)
+    #print("\n")
     
     return etah3
 
@@ -643,10 +641,18 @@ def Conjugate_Gradient_HL1(user_Validation_error, W_out, W_HL1, B_out, B_HL1, da
 # Initial Neural Network Attributes setup
 
 # Printing the values of each sample but removing the first element of list which is the name of different values
-with open('test.csv', newline='') as f:
+
+filepath = askopenfile(mode='r', filetypes=[('Excel files (csv format)', '*csv')])
+# openfile1(filepath)
+
+# data = pd.read_csv (r'C:\Users\Ron\Desktop\Clients.csv')   
+# df = pd.DataFrame(data, columns= ['Person Name','Country'])
+# print (df)
+with open(filepath) as f:
     reader = csv.reader(f)
     data_Tr = list(reader)
 data_Tr.pop(0)
+
 
 Ali_num_inputs = 1
 Ali_num_outputs = 1
@@ -659,7 +665,7 @@ for sample in data_Tr:
     for i in range(len(sample)):
         sample[i] = float(sample[i])
 
-# print("data_Tr = ", data_Tr)
+print("data_Tr = ", data_Tr)
 # print("data_V = ", data_V)
 # print("data_Te = ", data_Te)
 # print("\n")
@@ -693,19 +699,19 @@ data_Tr_outputs = np.array(data_Tr_outputs)
 
 # Initialize the weight values when a number was typed by an user in GUI
 
-max_epoch = 20;
+max_epoch = 100;
 user_Validation_error = 0.000001;
 
 if (Ali_num_HL == 1):
-    W_HL1 = np.random.rand(Ali_HL1_neuron, Ali_num_inputs)
-    B_HL1 = np.random.rand(Ali_HL1_neuron)
-    W_out = np.random.rand(Ali_num_outputs, len(W_HL1))
-    B_out = np.random.rand(Ali_num_outputs)
+    # W_HL1 = np.random.rand(Ali_HL1_neuron, Ali_num_inputs)
+    # B_HL1 = np.random.rand(Ali_HL1_neuron)
+    # W_out = np.random.rand(Ali_num_outputs, len(W_HL1))
+    # B_out = np.random.rand(Ali_num_outputs)
     
-    # W_HL1 = np.array([[2], [0.1]])
-    # B_HL1 = np.array([0, 1.0])
-    # W_out = np.array([[4, -1]])
-    # B_out = np.array([0])
+    W_HL1 = np.array([[2], [0.1]])
+    B_HL1 = np.array([0, 1.0])
+    W_out = np.array([[4, -1]])
+    B_out = np.array([0])
     
     print("W_out START = ", W_out)
     print("W_HL1 START = ", W_HL1)
